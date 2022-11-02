@@ -1,0 +1,127 @@
+char Incoming_value = 0;
+#include <Servo.h>
+#include <LiquidCrystal.h>
+Servo myservo;
+int pos = 0; 
+const int rs = 12, en = 10, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+int sensorPin = A0; // select the input pin for the potentiometer
+int sensorValue = 0; // variable to store the value coming from the sensor
+
+//rain
+int rainAnalogPin = A0;
+int rainDigitalPin = 8;
+
+void setup(){
+
+  //door
+  myservo.attach(13);
+  
+  //rain
+  pinMode(7, OUTPUT);
+  pinMode(rainAnalogPin, INPUT);
+  pinMode(rainDigitalPin, INPUT);
+  
+  pinMode(12, INPUT);
+  pinMode(10, OUTPUT);
+  Serial.begin(9600);
+  pinMode(9,OUTPUT);
+  pinMode(11,OUTPUT);
+  pinMode(6,OUTPUT);
+  lcd.begin(16, 2);
+  //lcd.print("hello, world!");
+  pinMode(sensorPin, INPUT);
+  Serial.begin(9600);
+}
+void loop(){
+
+  //rain
+  int sensorAnalogValue = analogRead(rainAnalogPin);
+  int sensorDigitalValue = digitalRead(rainDigitalPin);
+   if(sensorDigitalValue == LOW) //High means rain detected; In some case vise versa
+ {
+  digitalWrite(7, HIGH);
+  delay(500);
+ Serial.println("Rain Detected");
+
+ }
+ else {
+  digitalWrite(7, LOW);
+  delay(500);
+ Serial.println("No Rain Detected");
+ }
+  
+     if (Serial.available() > 0)
+    {
+      Incoming_value = Serial.read();
+      Serial.print(Incoming_value);
+      Serial.print("/n");
+      if (Incoming_value == '2')
+      {
+        digitalWrite(9,HIGH);
+      }
+      if(Incoming_value == '3')
+      {
+        digitalWrite(9,LOW); 
+      }
+   
+      if (Incoming_value == '1')
+      {
+        digitalWrite(11,HIGH);
+      }
+      if(Incoming_value == '0')
+      {
+        digitalWrite(11,LOW); 
+      }
+      if (Incoming_value == '6')
+      {
+        digitalWrite(6,HIGH);
+      }
+      if(Incoming_value == '7')
+      {
+        digitalWrite(6,LOW); 
+      }
+      if (Incoming_value == '4')
+      {
+        myservo.write(180);
+//            for (pos = 0; pos <= 90; pos += 1) // goes from 0 degrees to 180 degrees // in steps of 1 degree
+//            { 
+////                  myservo.write(pos);              // tell servo to go to position in variable 'pos'
+//                  
+//                  delay(2);                       // waits 15ms for the servo to reach the position
+//            }
+      }
+      if(Incoming_value == '5')
+      {
+        myservo.write(90);
+//            for (pos = 90; pos >= 0; pos -= 1)  // goes from 180 degrees to 0 degrees
+//            {
+//                  myservo.write(pos);              // tell servo to go to position in variable 'pos'
+//                  delay(2);                       // waits 15ms for the servo to reach the position
+//            }
+      }
+     
+    }
+  sensorValue = analogRead(sensorPin);  
+
+ lcd.print(" Moisture:");
+ lcd.print(sensorValue); 
+ lcd.setCursor(0, 1);
+ 
+ if(sensorValue < 300){
+  lcd.print(" Too much water");
+  Serial.println("Too much water");
+ }
+ else if(sensorValue > 300 && sensorValue < 700){
+  lcd.print(" enough water  ");
+  Serial.println("enough water");
+ }
+ if(sensorValue > 700){
+  lcd.print(" water required");
+  Serial.println(" water required");
+ }
+ 
+// Serial.print("\n");
+ delay(500);
+ 
+} 
